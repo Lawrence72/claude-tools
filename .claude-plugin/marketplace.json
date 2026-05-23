@@ -19,6 +19,13 @@
       "author": { "name": "Mr Percival" },
       "category": "planning",
       "source": "./plugins/feature-planner"
+    },
+    {
+      "name": "ticket-estimator",
+      "description": "Estimates the AI-era cost of a PM-written ticket — scores planning complexity, review surface area, cognitive load, test complexity, and ambiguity before engineering picks it up",
+      "author": { "name": "Mr Percival" },
+      "category": "planning",
+      "source": "./plugins/ticket-estimator"
     }
   ]
 }

@@ -1,0 +1,7 @@
+{
+  "name": "ticket-estimator",
+  "description": "Estimates the AI-era cost of a PM-written ticket — scores planning complexity, review surface area, cognitive load, test complexity, and ambiguity. Produces an actionable cost report with split recommendations and review-pressure flags.",
+  "author": {
+    "name": "Mr Percival"
+  }
+}
