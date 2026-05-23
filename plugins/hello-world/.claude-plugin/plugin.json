@@ -1,0 +1,7 @@
+{
+  "name": "hello-world",
+  "description": "A simple hello world plugin that responds with Hello, World!",
+  "author": {
+    "name": "Mr Percival"
+  }
+}
