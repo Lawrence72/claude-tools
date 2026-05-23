@@ -1,15 +1,17 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-tools",
+  "description": "A growing collection of Claude Code plugins and tools",
+  "owner": {
+    "name": "Mr Percival"
+  },
   "plugins": [
     {
       "name": "hello-world",
       "description": "A simple hello world plugin — responds with Hello, World!",
       "author": { "name": "Mr Percival" },
       "category": "example",
-      "source": {
-        "source": "git-subdir",
-        "path": "plugins/hello-world",
-        "ref": "main"
-      }
+      "source": "./plugins/hello-world"
     }
   ]
 }
