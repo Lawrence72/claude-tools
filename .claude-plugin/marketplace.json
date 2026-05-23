@@ -12,6 +12,13 @@
       "author": { "name": "Mr Percival" },
       "category": "example",
       "source": "./plugins/hello-world"
+    },
+    {
+      "name": "feature-planner",
+      "description": "Guided feature planning — interviews the user, explores the codebase, and writes a structured implementation plan to ~/.claude/plans/",
+      "author": { "name": "Mr Percival" },
+      "category": "planning",
+      "source": "./plugins/feature-planner"
     }
   ]
 }
