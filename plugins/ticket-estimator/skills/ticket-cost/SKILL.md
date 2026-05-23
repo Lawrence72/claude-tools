@@ -178,6 +178,46 @@ Do not assign scores based on the ticket text alone — every score must be grou
 
 ---
 
+### Velocity Score Calculation
+
+After scoring all five dimensions, calculate the velocity points for this ticket. These replace traditional story points and represent the *human overhead* cost of the ticket in AI-assisted development — not implementation time.
+
+**Step 1 — Base score** (execution dimensions only):
+
+```
+Base = Planning + Review Surface + Cognitive Load + Test Complexity
+       where Low=1, Medium=2, High=3
+       Range: 4–12
+```
+
+**Step 2 — Ambiguity multiplier** (rework risk scales all overhead):
+
+| Ambiguity score | Multiplier | Why |
+|---|---|---|
+| Low | ×1.0 | Ticket is clear — AI executes correctly first time |
+| Medium | ×1.25 | One or two gaps mean some iteration; ~25% overhead increase |
+| High | ×1.5 | Likely rework cycle — all overhead dimensions re-run |
+
+**Step 3 — Weighted score** = Base × Ambiguity multiplier, rounded to nearest integer
+
+**Step 4 — Map to velocity points:**
+
+| Weighted score | Velocity points | Human overhead estimate |
+|---|---|---|
+| 4–5 | **1 pt** | Light: ~1–2 hrs total planning + review |
+| 6–7 | **2 pts** | Easy: ~2–4 hrs |
+| 8–9 | **3 pts** | Standard: ~half a day |
+| 10–12 | **5 pts** | Heavy: 1–2 days human overhead |
+| 13–15 | **8 pts** | Complex: 2–4 days |
+| 16+ | **13 pts** | Epic: must split before pickup |
+
+Show your working when calculating. Example:
+> Planning(3) + Review(2) + Cognitive(3) + Test(2) = Base 10 × Ambiguity Medium(1.25) = 12.5 → 13 → **8 pts**
+
+If the verdict is "Split required," also calculate the velocity score for each candidate sub-ticket using the same formula. The sub-ticket totals will typically sum to *more* than the original ticket score — this gap reveals the hidden overhead that bundling was masking.
+
+---
+
 ## Phase 4 — Generate Verdict and Recommendations
 
 ### 4a — Overall verdict
@@ -241,11 +281,12 @@ date: YYYY-MM-DD
 ticket: <ticket title or filename>
 project: <basename of current working directory>
 verdict: <Ship as-is | Refine ticket first | Split required>
+velocity_points: <N>
 ---
 
 # <Ticket Title> — Cost Estimate
 
-**Verdict: <SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>**
+**Verdict: <SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>** · **<N> velocity pts**
 
 > This estimate reflects the AI-era cost model: implementation time is not the bottleneck.
 > The bottleneck is planning, review, and verification.
@@ -260,7 +301,17 @@ verdict: <Ship as-is | Refine ticket first | Split required>
 | Review Surface Area | Low / Medium / High | <one line: estimated N files, ~NNN LOC, layers touched> |
 | Cognitive Load | Low / Medium / High | <one line citing what a reviewer must hold in their head> |
 | Test Complexity | Low / Medium / High | <one line: N scenarios, mock requirements> |
-| Ambiguity | Low / Medium / High | <one line citing specific gaps in the ticket> |
+| Ambiguity (×multiplier) | Low / Medium / High | <one line citing specific gaps in the ticket> |
+
+**Velocity score:** Planning(<n>) + Review(<n>) + Cognitive(<n>) + Test(<n>) = Base <n> × Ambiguity <multiplier> = <weighted> → **<N> pts**
+
+<If Split required, list sub-ticket velocity scores:>
+| Sub-Ticket | Base | ×Ambiguity | Velocity |
+|---|---|---|---|
+| <Sub-Ticket 1 title> | <n> | <multiplier> | **<N> pts** |
+| <Sub-Ticket 2 title> | <n> | <multiplier> | **<N> pts** |
+| **Total sub-ticket cost** | | | **<sum> pts** |
+| *Hidden overhead (bundling masked)* | | | *<sum minus original> pts* |
 
 ---
 
@@ -353,9 +404,9 @@ Tell the user:
 
 > "Cost report saved to `~/.claude/plans/<filename>-cost.md`
 >
-> Verdict: **<SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>**
+> Verdict: **<SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>** · **<N> velocity pts**
 >
-> <One sentence summary of the key finding.>"
+> <One sentence summary of the key finding. If split required, include the sub-ticket velocity breakdown, e.g. "Splits into 4 sub-tickets totalling 13 pts — the bundled ticket was masking 8 pts of hidden overhead.">"
 
 Then offer next steps:
 - If "Ship as-is": suggest `/feature-planner` to begin planning
