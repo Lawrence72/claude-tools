@@ -16,32 +16,33 @@ Work through the four phases below in order. Do not skip phases or merge them.
 
 ## Phase 1 — Initial Discovery
 
-Use AskUserQuestion with **three questions in a single call**:
+### Step 1a — Free-form description
 
-**Question 1 — "What do you want to build?"** (header: "Feature type")
-Options:
-- A new page or screen (UI / frontend)
-- A new API endpoint or backend service
-- A data model or database change (CRUD / schema)
-- Authentication or authorisation (login, permissions, roles)
-- A background job, queue, or scheduled task
-- A refactor or internal improvement (no new user-facing feature)
+Ask the user to describe what they want to build in plain conversation — do not present options. Just ask:
 
-**Question 2 — "How would you describe the scope?"** (header: "Scope")
+> "What would you like to build? Describe it in your own words — as much or as little detail as you have right now."
+
+Wait for their response. Read it carefully. You will derive the feature type, affected layers, and rough scope from their description — do not ask them to classify it for you.
+
+### Step 1b — Scope and constraints
+
+Once you have their description, use AskUserQuestion with **two questions in a single call**:
+
+**Question 1 — "How would you describe the scope?"** (header: "Scope")
 Options:
 - Small — a single file or two, a few hours
 - Medium — several files, a day or two
 - Large — multiple layers (DB + API + UI), several days
 - Not sure yet
 
-**Question 3 — "Are there any hard constraints I should know upfront?"** (header: "Constraints")
+**Question 2 — "Are there any hard constraints I should know upfront?"** (header: "Constraints")
 Options:
 - Must integrate with existing auth / session system
 - Must not break existing API contracts
 - Performance-sensitive (caching, indexing, latency)
 - No known constraints — explore freely
 
-After receiving answers, summarise your understanding in 2-3 sentences and confirm before continuing.
+After receiving answers, summarise your understanding of the full feature in 2–3 sentences — including what you inferred from their description — and confirm before continuing.
 
 ---
 
