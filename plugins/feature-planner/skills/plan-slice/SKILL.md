@@ -40,14 +40,38 @@ This context is essential for generating realistic code skeletons.
 
 ## Step 3 — Determine Slice Boundaries
 
-Analyse the feature end-to-end and identify **3–6 vertical slice boundaries**. Each slice must:
+Analyse the feature end-to-end and identify the right number of vertical slices — **as few as 1, up to 6**. Each slice must:
 
 - Deliver a **working, independently testable increment** — not "all DB work" or "all API work"
 - Touch all layers required for that increment (DB + service + API + UI as appropriate)
 - Be named by what it **delivers**, not which layer it is
+- Represent a meaningful **concern boundary** — a point where you'd stop, verify, and commit before moving to something fundamentally different
 
 Good slice names: "Core data model", "Create flow end-to-end", "List view with filters"
 Bad slice names: "Database layer", "Backend", "Frontend"
+
+**Two reasons to start a new slice — either is sufficient:**
+
+1. **Concern shift** — the work moves to a meaningfully different part of the ticket (e.g. from data model → API → UI, or from create flow → edit flow)
+2. **Cognitive load** — even within a single concern, if the code Claude will write is large enough that a developer reviewing the diff would feel overwhelmed, split it. A developer should be able to read a slice's diff comfortably in one sitting
+
+> This is where AI-assisted slicing differs from traditional vertical slicing. In traditional development, slices are purely about delivering working functionality incrementally. In AI dev, Claude can generate a lot of code very quickly — so slice size also matters as a review safety valve, even when the concern hasn't shifted.
+
+**When to use a sub-task instead of a new slice:**
+- Making the same type of change across multiple files (e.g. renaming a URL in 2 routes)
+- Adding tests for code written in the same slice
+- Completing a single concern across a few small files where the total diff is easy to review
+
+**Small features may have just 1 slice.** If a ticket is a minor change — a rename, a copy tweak, a config value — don't invent artificial slice boundaries. Put everything in Slice 1 as sub-tasks. It's always better to have one honest slice than three contrived ones.
+
+Anti-pattern — **don't do this:**
+- Slice 1: Change `/findplayers` in `routes.php`
+- Slice 2: Change `/findplayers` in `LobbyController.php`
+
+Do this instead:
+- Slice 1: Rename `/findplayers` to `/lobby` across the codebase
+  - [ ] Update route definition in `routes.php`
+  - [ ] Update redirect/link in `LobbyController.php`
 
 Consider natural dependencies — a "List view" slice can't come before the "Core data model" slice. Order slices so each one builds on the last.
 
@@ -110,7 +134,7 @@ type: vertical-slice-plan
 - [ ] Verify: <...>
 - [ ] Commit: `feat: <...>`
 
-<Repeat for all slices. Aim for 3–6.>
+<Repeat for all slices. Use as few as needed — 1 slice is fine for small changes.>
 
 ---
 
