@@ -12,7 +12,8 @@ A Claude Code plugin marketplace with a growing collection of tools and skills.
 
 | Plugin | Category | Description |
 |--------|----------|-------------|
-| [hello-world](./plugins/hello-world) | example | Responds with "Hello, World!" — a simple demonstration skill |
+| [feature-planner](./plugins/feature-planner) | planning | Guided feature planning — interviews the user, explores the codebase, and writes a structured implementation plan to `~/.claude/plans/` |
+| [ticket-estimator](./plugins/ticket-estimator) | planning | Takes a PM ticket, builds a full implementation plan with real file paths and code skeletons, then derives a velocity cost estimate from that plan via `/estimate` |
 
 ## Install a Plugin
 
@@ -25,7 +26,7 @@ After adding this marketplace, install any plugin with:
 For example:
 
 ```
-/plugins install hello-world
+/plugins install ticket-estimator
 ```
 
 ## Contributing a Plugin

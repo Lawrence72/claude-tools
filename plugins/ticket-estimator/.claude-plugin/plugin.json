@@ -2,6 +2,6 @@
   "name": "ticket-estimator",
   "description": "Takes a PM ticket, builds a full implementation plan with real file paths and code skeletons, then derives a velocity cost estimate from that plan. Evidence-based estimation — scores come from the plan, not guesswork.",
   "author": {
-    "name": "Mr Percival"
+    "name": "Lawrence Cooke"
   }
 }

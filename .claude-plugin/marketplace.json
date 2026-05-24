@@ -3,27 +3,20 @@
   "name": "claude-tools",
   "description": "A growing collection of Claude Code plugins and tools",
   "owner": {
-    "name": "Mr Percival"
+    "name": "Lawrence Cooke"
   },
   "plugins": [
     {
-      "name": "hello-world",
-      "description": "A simple hello world plugin — responds with Hello, World!",
-      "author": { "name": "Mr Percival" },
-      "category": "example",
-      "source": "./plugins/hello-world"
-    },
-    {
       "name": "feature-planner",
       "description": "Guided feature planning — interviews the user, explores the codebase, and writes a structured implementation plan to ~/.claude/plans/",
-      "author": { "name": "Mr Percival" },
+      "author": { "name": "Lawrence Cooke" },
       "category": "planning",
       "source": "./plugins/feature-planner"
     },
     {
       "name": "ticket-estimator",
       "description": "Takes a PM ticket, builds a full implementation plan with real file paths and code skeletons, then derives a velocity cost estimate from that plan — evidence-based estimation via /estimate",
-      "author": { "name": "Mr Percival" },
+      "author": { "name": "Lawrence Cooke" },
       "category": "planning",
       "source": "./plugins/ticket-estimator"
     }

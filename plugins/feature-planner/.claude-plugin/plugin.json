@@ -2,6 +2,6 @@
   "name": "feature-planner",
   "description": "Guided feature planning — interviews the user, explores the codebase, and writes a structured implementation plan to ~/.claude/plans/",
   "author": {
-    "name": "Mr Percival"
+    "name": "Lawrence Cooke"
   }
 }
