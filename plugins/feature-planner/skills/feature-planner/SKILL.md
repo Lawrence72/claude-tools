@@ -24,18 +24,9 @@ Ask the user to describe what they want to build in plain conversation — do no
 
 Wait for their response. Read it carefully. You will derive the feature type, affected layers, and rough scope from their description — do not ask them to classify it for you.
 
-### Step 1b — Constraints
+### Step 1b — Confirm understanding
 
-Once you have their description, use AskUserQuestion with **one question** (multiSelect: true):
-
-**"Are there any hard constraints I should know upfront?"** (header: "Constraints")
-Options:
-- Must integrate with existing auth / session system
-- Must not break existing API contracts
-- Performance-sensitive (caching, indexing, latency)
-- No known constraints — explore freely
-
-After receiving their answer, summarise your understanding of the full feature in 2–3 sentences — including what you inferred from their description **and your inferred scope** (e.g. "This looks like a medium-sized change touching the data layer and UI...") — so the user can correct anything before you continue.
+Summarise your understanding of the full feature in 2–3 sentences — including what you inferred from their description **and your inferred scope** (e.g. "This looks like a medium-sized change touching the data layer and UI...") — so the user can correct anything before you continue. Do not ask any questions here; just confirm and proceed.
 
 ---
 
@@ -69,6 +60,13 @@ Design questions around the actual gaps found. Examples (adapt to what you disco
 - If auth patterns vary: "I found two auth patterns — which should this feature use?" (options: route-level middleware / controller-level guard / no auth required)
 - If multiple test styles exist: "What test coverage matters most for this feature?" (options: unit tests only / integration tests / both / none right now)
 - If data ownership is unclear: "Where should the primary data live?" (options: new table / extend existing model / derived from existing data / external API)
+
+**Constraints question — only include if warranted:** If the codebase exploration surfaces signals that constraints are likely (e.g. the feature touches auth middleware, an existing public API, a performance-sensitive hot path, or a shared data model), include a constraints question in this same AskUserQuestion call (multiSelect: true):
+
+> "I noticed [specific thing]. Are there constraints I should plan around?" (header: "Constraints")
+> Options: Must not break existing API contracts / Must integrate with the existing auth system / Performance-sensitive — needs caching or indexing / No constraints — explore freely
+
+Do not include this question if the exploration shows no obvious constraint signals — just omit it silently.
 
 Always include an escape hatch option so users can provide their own answer when none of the options fit.
 
