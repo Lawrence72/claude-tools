@@ -24,25 +24,18 @@ Ask the user to describe what they want to build in plain conversation — do no
 
 Wait for their response. Read it carefully. You will derive the feature type, affected layers, and rough scope from their description — do not ask them to classify it for you.
 
-### Step 1b — Scope and constraints
+### Step 1b — Constraints
 
-Once you have their description, use AskUserQuestion with **two questions in a single call**:
+Once you have their description, use AskUserQuestion with **one question** (multiSelect: true):
 
-**Question 1 — "How would you describe the scope?"** (header: "Scope")
-Options:
-- Small — a single file or two, a few hours
-- Medium — several files, a day or two
-- Large — multiple layers (DB + API + UI), several days
-- Not sure yet
-
-**Question 2 — "Are there any hard constraints I should know upfront?"** (header: "Constraints")
+**"Are there any hard constraints I should know upfront?"** (header: "Constraints")
 Options:
 - Must integrate with existing auth / session system
 - Must not break existing API contracts
 - Performance-sensitive (caching, indexing, latency)
 - No known constraints — explore freely
 
-After receiving answers, summarise your understanding of the full feature in 2–3 sentences — including what you inferred from their description — and confirm before continuing.
+After receiving their answer, summarise your understanding of the full feature in 2–3 sentences — including what you inferred from their description **and your inferred scope** (e.g. "This looks like a medium-sized change touching the data layer and UI...") — so the user can correct anything before you continue.
 
 ---
 
