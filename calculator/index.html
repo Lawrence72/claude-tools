@@ -6,24 +6,30 @@
   <title>AI-Era Velocity Calculator</title>
   <style>
     :root {
-      --bg:          #f0f4f8;
-      --card:        #ffffff;
-      --heading:     #1e3a5f;
-      --text:        #2d3748;
-      --muted:       #718096;
-      --border:      #e2e8f0;
+      --bg:          #0d1117;
+      --surface:     #161b22;
+      --surface-2:   #1c2128;
+      --border:      #30363d;
+      --border-hi:   #484f58;
 
-      --low:         #16a34a;
-      --low-bg:      #f0fdf4;
-      --low-border:  #22c55e;
+      --text:        #e6edf3;
+      --text-muted:  #8b949e;
+      --accent:      #58a6ff;
 
-      --med:         #92400e;
-      --med-bg:      #fffbeb;
-      --med-border:  #f59e0b;
+      --low:         #3fb950;
+      --low-bg:      #0d2a15;
+      --low-border:  #238636;
+      --low-glow:    rgba(63, 185, 80, 0.15);
 
-      --high:        #991b1b;
-      --high-bg:     #fef2f2;
-      --high-border: #ef4444;
+      --med:         #e3b341;
+      --med-bg:      #2b1d08;
+      --med-border:  #9e6a03;
+      --med-glow:    rgba(227, 179, 65, 0.15);
+
+      --high:        #f85149;
+      --high-bg:     #2d0f0e;
+      --high-border: #da3633;
+      --high-glow:   rgba(248, 81, 73, 0.15);
 
       --radius: 8px;
       --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
@@ -49,29 +55,36 @@
     header h1 {
       font-size: 1.65rem;
       font-weight: 800;
-      color: var(--heading);
+      color: var(--text);
       letter-spacing: -0.02em;
       margin-bottom: 0.5rem;
     }
 
+    header h1 span {
+      color: var(--accent);
+    }
+
     header p {
-      color: var(--muted);
-      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-size: 0.88rem;
       max-width: 480px;
       margin: 0 auto;
+      line-height: 1.55;
     }
 
     /* ── Cards ───────────────────────────────── */
     .card {
-      background: var(--card);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.2rem 1.25rem;
       margin-bottom: 0.65rem;
+      transition: border-color 0.15s;
     }
 
     .card.ambiguity {
-      border-left: 4px solid var(--heading);
+      border-left: 3px solid var(--accent);
+      background: var(--surface-2);
     }
 
     .dim-meta {
@@ -82,24 +95,24 @@
     }
 
     .dim-tag {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--text-muted);
     }
 
     .dim-name {
       font-size: 0.98rem;
       font-weight: 700;
-      color: var(--heading);
+      color: var(--text);
     }
 
     .dim-hint {
       font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 0.85rem;
-      line-height: 1.45;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+      line-height: 1.5;
     }
 
     /* ── Button groups ───────────────────────── */
@@ -107,88 +120,122 @@
 
     .opt {
       flex: 1;
-      border: 2px solid var(--border);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: white;
+      background: var(--bg);
       cursor: pointer;
-      padding: 0.55rem 0.5rem 0.5rem;
+      padding: 0.6rem 0.5rem 0.55rem;
       text-align: center;
-      transition: border-color 0.12s, background 0.12s, color 0.12s;
+      transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
       font-family: var(--font);
+    }
+
+    .opt:hover {
+      border-color: var(--border-hi);
+      background: var(--surface-2);
     }
 
     .opt-label {
       display: block;
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--muted);
+      color: var(--text-muted);
+      transition: color 0.12s;
     }
 
     .opt-score {
       display: block;
-      font-size: 0.7rem;
-      font-weight: 400;
-      color: var(--muted);
+      font-size: 0.68rem;
+      color: var(--text-muted);
       margin-top: 0.05rem;
+      transition: color 0.12s;
     }
 
     .opt-hint {
       display: block;
-      font-size: 0.68rem;
-      color: var(--muted);
+      font-size: 0.67rem;
+      color: var(--text-muted);
       margin-top: 0.3rem;
       line-height: 1.35;
+      opacity: 0.7;
     }
 
-    .opt:hover { border-color: var(--heading); }
-    .opt:hover .opt-label,
-    .opt:hover .opt-score { color: var(--heading); }
+    /* Selected states */
+    .opt.sel-low {
+      background: var(--low-bg);
+      border-color: var(--low-border);
+      box-shadow: 0 0 0 3px var(--low-glow);
+    }
+    .opt.sel-low .opt-label,
+    .opt.sel-low .opt-score { color: var(--low); }
 
-    .opt.sel-low  { background: var(--low-bg);  border-color: var(--low-border); }
-    .opt.sel-med  { background: var(--med-bg);  border-color: var(--med-border); }
-    .opt.sel-high { background: var(--high-bg); border-color: var(--high-border); }
+    .opt.sel-med {
+      background: var(--med-bg);
+      border-color: var(--med-border);
+      box-shadow: 0 0 0 3px var(--med-glow);
+    }
+    .opt.sel-med .opt-label,
+    .opt.sel-med .opt-score { color: var(--med); }
 
-    .opt.sel-low  .opt-label,
-    .opt.sel-low  .opt-score  { color: var(--low);  }
-    .opt.sel-med  .opt-label,
-    .opt.sel-med  .opt-score  { color: var(--med);  }
+    .opt.sel-high {
+      background: var(--high-bg);
+      border-color: var(--high-border);
+      box-shadow: 0 0 0 3px var(--high-glow);
+    }
     .opt.sel-high .opt-label,
-    .opt.sel-high .opt-score  { color: var(--high); }
+    .opt.sel-high .opt-score { color: var(--high); }
 
-    /* ── Section label ───────────────────────── */
+    /* ── Section divider ─────────────────────── */
     .section-label {
-      text-align: center;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
       margin: 1.1rem 0 0.65rem;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
     }
 
     /* ── Results panel ───────────────────────── */
     .results {
-      background: var(--heading);
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-top: 1.1rem;
-      transition: opacity 0.2s;
+      padding: 1.4rem 1.5rem;
+      margin-top: 1rem;
+      transition: opacity 0.2s, border-color 0.2s;
     }
 
-    .results.empty { opacity: 0.45; }
+    .results.empty { opacity: 0.4; }
+
+    .results.verdict-ship  { border-color: var(--low-border); }
+    .results.verdict-refine { border-color: var(--med-border); }
+    .results.verdict-split { border-color: var(--high-border); }
 
     .working {
       font-family: var(--mono);
       font-size: 0.78rem;
-      line-height: 1.85;
-      color: rgba(255,255,255,0.6);
+      line-height: 1.9;
+      color: var(--text-muted);
       padding-bottom: 1.1rem;
       margin-bottom: 1.1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.12);
-      min-height: 4.5rem;
+      border-bottom: 1px solid var(--border);
+      min-height: 5rem;
     }
 
-    .working .hi { color: #fff; font-weight: 600; }
+    .working .hi { color: var(--text); font-weight: 600; }
+    .working .hi-green { color: var(--low); font-weight: 600; }
+    .working .hi-amber { color: var(--med); font-weight: 600; }
+    .working .hi-red   { color: var(--high); font-weight: 600; }
 
     .verdict-row {
       display: flex;
@@ -198,58 +245,66 @@
 
     .verdict-badge {
       flex: 1;
-      padding: 0.7rem 1rem;
-      border-radius: calc(var(--radius) - 2px);
-      font-size: 0.85rem;
+      padding: 0.65rem 1rem;
+      border-radius: calc(var(--radius) - 1px);
+      font-size: 0.82rem;
       font-weight: 700;
       text-align: center;
-      letter-spacing: 0.01em;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
     }
 
-    .v-ship   { background: #dcfce7; color: #15803d; }
-    .v-refine { background: #fef3c7; color: #b45309; }
-    .v-split  { background: #fee2e2; color: #b91c1c; }
+    .v-ship   { background: var(--low-bg);  color: var(--low);  border-color: var(--low-border); }
+    .v-refine { background: var(--med-bg);  color: var(--med);  border-color: var(--med-border); }
+    .v-split  { background: var(--high-bg); color: var(--high); border-color: var(--high-border); }
 
     .pts-display { text-align: right; min-width: 80px; }
+
     .pts-num {
       font-size: 2.75rem;
       font-weight: 800;
-      color: #fff;
+      color: var(--text);
       line-height: 1;
+      font-variant-numeric: tabular-nums;
     }
-    .pts-unit { font-size: 0.72rem; color: rgba(255,255,255,0.55); margin-top: 0.15rem; }
-    .pts-hrs  { font-size: 0.8rem;  color: rgba(255,255,255,0.7);  margin-top: 0.1rem; }
+
+    .pts-unit { font-size: 0.7rem;  color: var(--text-muted); margin-top: 0.15rem; }
+    .pts-hrs  { font-size: 0.8rem;  color: var(--accent);     margin-top: 0.1rem; }
 
     .split-note {
       margin-top: 1rem;
       padding-top: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.12);
+      border-top: 1px solid var(--border);
       font-size: 0.78rem;
-      color: rgba(255,255,255,0.65);
+      color: var(--text-muted);
       line-height: 1.55;
       display: none;
     }
 
-    .split-note strong { color: rgba(255,255,255,0.85); }
+    .split-note strong { color: var(--text); }
     .split-note code {
-      background: rgba(255,255,255,0.1);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
       padding: 0.1em 0.35em;
-      border-radius: 3px;
+      border-radius: 4px;
       font-family: var(--mono);
+      font-size: 0.9em;
+      color: var(--accent);
     }
 
     /* ── Footer ──────────────────────────────── */
     footer {
       text-align: center;
       margin-top: 2rem;
-      font-size: 0.72rem;
-      color: var(--muted);
-      line-height: 1.7;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.8;
     }
 
-    footer a { color: var(--heading); text-decoration: none; }
+    footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
+    /* ── Responsive ──────────────────────────── */
     @media (max-width: 480px) {
       .verdict-row { flex-direction: column; align-items: stretch; }
       .pts-display  { text-align: center; }
@@ -261,7 +316,7 @@
 <div class="wrap">
 
   <header>
-    <h1>AI-Era Velocity Calculator</h1>
+    <h1>AI-Era <span>Velocity</span> Calculator</h1>
     <p>Score each dimension to get a velocity estimate based on <em>human overhead</em> — planning, review, and verification — not AI implementation time.</p>
   </header>
 
@@ -274,7 +329,7 @@
       <span class="dim-tag">Dimension 5</span>
       <span class="dim-name">Ambiguity</span>
     </div>
-    <p class="dim-hint">How well-defined is the ticket? High ambiguity multiplies all other costs — the AI guesses confidently, rework re-runs the entire planning-review cycle.</p>
+    <p class="dim-hint">How well-defined is the ticket? High ambiguity multiplies all other costs — the AI guesses confidently, and rework re-runs the entire planning-review cycle.</p>
     <div class="btn-row">
       <button class="opt" onclick="pick('ambiguity','low',this)">
         <span class="opt-label">Low</span>
@@ -318,9 +373,9 @@
     {
       id: 'planning', tag: 'Dimension 1', name: 'Planning Complexity',
       hint: 'How many design decisions need locking down before the AI starts? New abstractions, multiple layers, data migrations all add planning overhead.',
-      low:  '≤ 5 files, ≤ 200 LOC — single layer, clear path',
+      low:  'Single layer, clear path from existing patterns',
       med:  '2 layers or 1–2 non-obvious design decisions',
-      high: '3+ layers, new abstraction, migration, or cross-cutting concern (auth, caching, events)'
+      high: '3+ layers, new abstraction, migration, or cross-cutting concern'
     },
     {
       id: 'review', tag: 'Dimension 2', name: 'Review Surface Area',
@@ -331,14 +386,14 @@
     },
     {
       id: 'cognitive', tag: 'Dimension 3', name: 'Cognitive Load',
-      hint: 'How much system knowledge must a reviewer hold simultaneously to catch AI mistakes? Distinct from surface area — a 3-file change in the auth system can be harder than a 15-file CRUD feature.',
+      hint: 'How much system knowledge must a reviewer hold simultaneously to catch AI mistakes? Distinct from surface area — a 3-file auth change can be harder than a 15-file CRUD feature.',
       low:  'Self-contained — basic codebase familiarity enough',
       med:  'Reviewer must understand one non-obvious system rule',
       high: 'Reviewer must hold 2+ complex mental models at once'
     },
     {
       id: 'test', tag: 'Dimension 4', name: 'Test Complexity',
-      hint: 'How many scenarios, mocks, and integration requirements does this feature need? AI writes the tests, but humans design the scenarios and verify the mocks are correct.',
+      hint: 'How many scenarios, mocks, and integration requirements does this feature need? AI writes the tests, but humans design the scenarios and verify the mocks.',
       low:  '≤ 3 scenarios, no mocks, happy path',
       med:  '4–7 scenarios or one external service mock',
       high: '> 7 scenarios or multiple mocks or multi-layer integration tests'
@@ -349,7 +404,7 @@
   const MULT  = { low: 1.0, med: 1.25, high: 1.5 };
   const state = { planning: null, review: null, cognitive: null, test: null, ambiguity: null };
 
-  // Render execution dimension cards
+  // Render dimension cards
   const container = document.getElementById('dims');
   DIMS.forEach(d => {
     container.insertAdjacentHTML('beforeend', `
@@ -381,9 +436,7 @@
 
   function pick(dim, val, btn) {
     state[dim] = val;
-    btn.closest('.btn-row').querySelectorAll('.opt').forEach(b => {
-      b.className = 'opt';
-    });
+    btn.closest('.btn-row').querySelectorAll('.opt').forEach(b => b.className = 'opt');
     btn.classList.add(`sel-${val}`);
     recalc();
   }
@@ -397,25 +450,28 @@
     return 13;
   }
 
+  function scoreClass(val) {
+    return val === 'high' ? 'hi-red' : val === 'med' ? 'hi-amber' : 'hi-green';
+  }
+
   function recalc() {
     const execKeys = ['planning','review','cognitive','test'];
     const execDone = execKeys.every(k => state[k] !== null);
-    const allDone  = execDone && state.ambiguity !== null;
 
     const results = document.getElementById('results');
     const working = document.getElementById('working');
     const verdict = document.getElementById('verdict');
-    const pts     = document.getElementById('pts');
-    const hrs     = document.getElementById('hrs');
+    const ptsEl   = document.getElementById('pts');
+    const hrsEl   = document.getElementById('hrs');
     const note    = document.getElementById('note');
 
     if (!execDone) {
-      results.classList.add('empty');
+      results.className = 'results empty';
       working.textContent = 'Select all five dimensions above to calculate your velocity score.';
       verdict.textContent = '—';
       verdict.className = 'verdict-badge';
-      pts.textContent = '—';
-      hrs.textContent = '';
+      ptsEl.textContent = '—';
+      hrsEl.textContent = '';
       note.style.display = 'none';
       return;
     }
@@ -433,34 +489,44 @@
     const vpts  = lookup(w);
     const hours = vpts * 4;
 
-    const highCount  = execKeys.filter(k => state[k] === 'high').length;
-    const splitReq   = highCount >= 2 || w >= 20;
-    const refineReq  = !splitReq && (state.ambiguity === 'med' || state.ambiguity === 'high');
+    const highCount = execKeys.filter(k => state[k] === 'high').length;
+    const splitReq  = highCount >= 2 || w >= 20;
+    const refineReq = !splitReq && (state.ambiguity === 'med' || state.ambiguity === 'high');
 
-    const multStr = state.ambiguity ? `×${mult}` : `×${mult} (default)`;
+    // Coloured score tokens in the working line
+    const pc = scoreClass(state.planning);
+    const rc = scoreClass(state.review);
+    const cc = scoreClass(state.cognitive);
+    const tc = scoreClass(state.test);
+    const ac = scoreClass(ambig);
+    const multStr = `×${mult}`;
+
     working.innerHTML =
-      `Planning(<span class="hi">${p}</span>) + Review(<span class="hi">${r}</span>) + Cognitive(<span class="hi">${c}</span>) + Test(<span class="hi">${t}</span>) = Base <span class="hi">${base}</span><br>` +
-      `Base ${base} ${multStr === `×${mult}` ? `× Ambiguity <span class="hi">${multStr}</span>` : `<span class="hi">${multStr}</span>`} = ${raw % 1 ? raw.toFixed(2) : raw} → Weighted <span class="hi">${w}</span><br>` +
-      `Weighted ${w} → <span class="hi">${vpts} velocity point${vpts !== 1 ? 's' : ''}</span> (~${hours} hrs human overhead)`;
+      `Planning(<span class="${pc}">${p}</span>) + Review(<span class="${rc}">${r}</span>) + ` +
+      `Cognitive(<span class="${cc}">${c}</span>) + Test(<span class="${tc}">${t}</span>) = Base <span class="hi">${base}</span><br>` +
+      `Base ${base} × Ambiguity <span class="${ac}">${multStr}</span> = ${raw % 1 ? raw.toFixed(2) : raw} → Weighted <span class="hi">${w}</span><br>` +
+      `Weighted ${w} → <span class="hi">${vpts} velocity point${vpts !== 1 ? 's' : ''}</span> · <span class="hi-green">~${hours} hrs human overhead</span>`;
 
-    results.classList.remove('empty');
-    pts.textContent = vpts;
-    hrs.textContent = `~${hours} hrs overhead`;
+    ptsEl.textContent = vpts;
+    hrsEl.textContent = `~${hours} hrs overhead`;
 
     if (splitReq) {
+      results.className = 'results verdict-split';
       verdict.textContent = '⚠ SPLIT REQUIRED';
       verdict.className = 'verdict-badge v-split';
       note.style.display = 'block';
       const why = highCount >= 2
-        ? `${highCount} dimensions scored High — a reviewer must hold multiple complex models simultaneously, which compounds the error risk.`
-        : `Weighted score ${w} ≥ 20 — aggregate complexity is too high for a single sprint item.`;
+        ? `${highCount} dimensions scored High — a reviewer must hold multiple complex models simultaneously, which compounds error risk.`
+        : `Weighted score ${w} ≥ 20 — aggregate complexity exceeds a single sprint item.`;
       note.innerHTML = `<strong>Why split?</strong> ${why} Break into independently-deliverable slices and run <code>/estimate</code> on each sub-ticket.`;
     } else if (refineReq) {
+      results.className = 'results verdict-refine';
       verdict.textContent = '✎ REFINE TICKET FIRST';
       verdict.className = 'verdict-badge v-refine';
       note.style.display = 'block';
-      note.innerHTML = `<strong>Ambiguity risk:</strong> The ticket has gaps that Claude will have to guess at — and the AI guesses confidently. Improve the acceptance criteria and name the actors before handing to engineering, then re-score.`;
+      note.innerHTML = `<strong>Ambiguity risk:</strong> The ticket has gaps that Claude will have to guess at — and it guesses confidently. Improve the acceptance criteria and name the actors before handing to engineering, then re-score.`;
     } else {
+      results.className = 'results verdict-ship';
       verdict.textContent = '✓ SHIP AS-IS';
       verdict.className = 'verdict-badge v-ship';
       note.style.display = 'none';
