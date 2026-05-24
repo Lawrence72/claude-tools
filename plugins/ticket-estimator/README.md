@@ -1,88 +1,116 @@
 # ticket-estimator
 
-A Claude Code skill for estimating ticket cost in AI-assisted development teams. In AI-era development, implementation time collapses — but planning, review, and verification costs remain. This plugin measures those costs before engineering picks up a ticket.
+A Claude Code skill that takes a PM-written ticket, builds a full implementation plan with real file paths and code skeletons, then derives a velocity cost estimate from that plan. The estimate is evidence-based — scores come from the plan, not guesswork.
 
 Works with any tech stack. Codebase-agnostic.
 
-## The AI-Era Cost Model
+---
 
-| Old model | New model |
-|-----------|-----------|
-| Cost = how long it takes to write the code | Cost = planning + review + verification |
-| Implementation time dominates | Planning complexity dominates |
-| Senior dev writes it faster | Complexity is in understanding, not typing |
+## Why plan first, then estimate?
+
+Traditional estimation tools ask humans to guess complexity. This skill asks Claude to *plan* the implementation in full — then the estimate falls out naturally from what the plan reveals:
+
+- **Review Surface Area** comes from the file manifest (exact count and LOC)
+- **Test Complexity** comes from the test scenario list (exact count)
+- **Planning Complexity** comes from the design decisions made during planning
+- **Cognitive Load** comes from the cross-cutting concerns found during codebase exploration
+- **Ambiguity** comes from the assumptions that had to be made when the ticket was unclear
+
+The estimate is only as accurate as the plan underneath it. So the skill builds the plan first.
+
+---
 
 ## Skills
 
 | Command | What it does |
 |---------|-------------|
-| `/ticket-cost` | Estimates the AI-era cost of a PM-written ticket across five dimensions — produces a cost report with a split/ship/refine verdict |
+| `/estimate` | Takes a PM ticket → builds a full dev plan with file paths + code skeletons → derives a velocity cost estimate from that plan → saves both files |
 
 ---
 
-## `/ticket-cost`
+## `/estimate`
 
-Analyses a PM-written ticket and produces a structured cost report. The report is calibrated for AI-assisted development, where implementation time is not the bottleneck.
+### What it produces
+
+Two files in `~/.claude/plans/`:
+
+**Dev plan** (`YYYY-MM-DD-feature-slug.md`):
+- File manifest with paths and estimated LOC
+- Code skeletons (class declarations, method signatures)
+- Data layer changes (schema, key queries)
+- Test approach and full scenario list
+- Vertical slices with tasks
+
+**Cost report** (`YYYY-MM-DD-feature-slug-cost.md`):
+- Five-dimension score table with evidence citations
+- Velocity points (calibrated to 1pt = 4 hours of human overhead)
+- Verdict: Ship as-is / Refine ticket first / Split required
+- Named sub-ticket breakdown (if split required)
+- Review-pressure flags with concrete mitigations
 
 ### The Five Dimensions
 
-| Dimension | What it measures |
-|-----------|-----------------|
-| **Planning Complexity** | How hard will the `/plan` session be? How many design decisions? |
-| **Review Surface Area** | How many files and lines must reviewers read? |
-| **Cognitive Load** | How much system context must a reviewer hold to spot AI mistakes? |
-| **Test Complexity** | How much test writing and verification is required? |
-| **Ambiguity** | How well-defined is the ticket? Will AI execute it correctly? |
+| Dimension | Evidence source |
+|-----------|----------------|
+| **Planning Complexity** | Design decisions made during planning |
+| **Review Surface Area** | Exact file count and LOC from the file manifest |
+| **Cognitive Load** | Cross-cutting concerns and novel patterns found in codebase exploration |
+| **Test Complexity** | Exact scenario count from the test plan |
+| **Ambiguity** | Assumptions made during planning where the ticket was unclear |
 
-Each dimension is scored Low / Medium / High using concrete, measurable criteria grounded in the actual codebase.
+### Velocity formula
 
-### Verdicts
+```
+Scoring: Low=1, Medium=3, High=6  (non-linear — High is disproportionately harder)
 
-| Verdict | Meaning |
-|---------|---------|
-| **Ship as-is** | Appropriately sized — no dimension is High, fewer than 3 are Medium |
-| **Refine ticket first** | The ticket itself is the problem — AC rewrites and actor clarifications are provided |
-| **Split required** | Too large for one sprint item — named candidate sub-tickets are provided |
+Base = Planning + Review + Cognitive + Test  (range 4–24)
 
-### Three Ways to Provide the Ticket
+Ambiguity multiplier:
+  Low    → ×1.0   (no rework risk)
+  Medium → ×1.25  (some iteration expected)
+  High   → ×1.5   (rework likely; all overhead re-runs)
 
-1. Select from recent `-ticket.md` files in `~/.claude/plans/`
-2. Type a path manually
-3. Paste the ticket text directly
+Weighted = Base × multiplier
 
-### Output
+Velocity: 4–9→1pt, 10–14→2pt, 15–19→3pt, 20–23→5pt, 24–28→8pt, 29+→13pt
+          (1pt = 4 hours of human overhead)
+```
 
-**Saved to:** `~/.claude/plans/<date>-<feature-slug>-cost.md`
+### Split rule
 
-The cost report includes:
-- Per-dimension score table with one-line rationale citing specific files
-- Review-pressure flags with concrete mitigations
-- Named split suggestions (not just "make it smaller")
-- Ticket quality improvements: AC rewrites, missing actors, implicit assumptions
-- Codebase grounding: comparable feature, LOC estimate, layers touched
+- **Split required** if 2+ dimensions score High, OR weighted score ≥ 20
+- **Refine ticket first** if Ambiguity is Medium/High with no split trigger
+- **Ship as-is** otherwise
+
+Split suggestions map directly to vertical slices in the dev plan.
 
 ---
 
-## Full Chain
+## Full workflow chain
 
 ```
-/plan-ticket              → feature-name-ticket.md     (PM ticket from dev plan)
+PM writes ticket
 
-/ticket-cost              reads feature-name-ticket.md  (AI-era cost estimate)
-  ├── Ship as-is          → /feature-planner            (begin planning)
-  ├── Refine ticket first → update ticket, re-run       (fix ambiguity first)
-  └── Split required      → split into sub-tickets      (run /ticket-cost on each)
+/estimate
+  ├── reads ticket
+  ├── explores codebase (Explore subagent)
+  ├── builds dev plan (file manifest + code skeletons + test plan + slices)
+  ├── scores 5 dimensions from the plan
+  ├── calculates velocity
+  └── saves dev plan + cost report
 
-/feature-planner          → feature-name.md             (architecture plan)
-  └─ /plan-slice          → feature-name-dev.md         (vertical slices + skeletons)
-  └─ /plan-implement                                    (implements the plan)
-  └─ /plan-verify                                       (independent QA pass)
+  ├── Ship as-is     → /plan-implement (uses the saved dev plan)
+  ├── Refine ticket  → PM updates ticket → /estimate again
+  └── Split required → split into sub-tickets → /estimate on each
+                       → /plan-implement on each in dependency order
 ```
 
 ---
 
-## Why estimate before planning?
+## What makes this different
 
-Engineering time spent planning a ticket that is too large — or too ambiguous — is wasted. The planning session stalls on design decisions that should have been resolved at the ticket stage. `/ticket-cost` surfaces that risk before the session starts, so the PM can refine or split the ticket while the cost is low.
+Most estimation tools score the *ticket*. This tool scores the *plan*.
 
-The estimate is grounded in the actual codebase (via an Explore subagent) rather than just the ticket text, so the score reflects what will actually be touched — not what the ticket says.
+The difference is that a ticket describes intent. A plan reveals reality — how many files actually change, how many test scenarios are actually required, what design decisions actually have to be made, what a reviewer actually needs to understand.
+
+Claude can't be pressured by sprint politics. It applies the rubric to what it finds in the code, not what the team wants to hear.

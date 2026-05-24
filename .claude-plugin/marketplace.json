@@ -22,7 +22,7 @@
     },
     {
       "name": "ticket-estimator",
-      "description": "Estimates the AI-era cost of a PM-written ticket — scores planning complexity, review surface area, cognitive load, test complexity, and ambiguity before engineering picks it up",
+      "description": "Takes a PM ticket, builds a full implementation plan with real file paths and code skeletons, then derives a velocity cost estimate from that plan — evidence-based estimation via /estimate",
       "author": { "name": "Mr Percival" },
       "category": "planning",
       "source": "./plugins/ticket-estimator"

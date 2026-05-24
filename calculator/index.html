@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Era Velocity Calculator</title>
+  <style>
+    :root {
+      --bg:          #f0f4f8;
+      --card:        #ffffff;
+      --heading:     #1e3a5f;
+      --text:        #2d3748;
+      --muted:       #718096;
+      --border:      #e2e8f0;
+
+      --low:         #16a34a;
+      --low-bg:      #f0fdf4;
+      --low-border:  #22c55e;
+
+      --med:         #92400e;
+      --med-bg:      #fffbeb;
+      --med-border:  #f59e0b;
+
+      --high:        #991b1b;
+      --high-bg:     #fef2f2;
+      --high-border: #ef4444;
+
+      --radius: 8px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+      --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2.5rem 1rem 3rem;
+      line-height: 1.5;
+    }
+
+    .wrap { max-width: 700px; margin: 0 auto; }
+
+    /* ── Header ──────────────────────────────── */
+    header { text-align: center; margin-bottom: 2.25rem; }
+
+    header h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--heading);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── Cards ───────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.25rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .card.ambiguity {
+      border-left: 4px solid var(--heading);
+    }
+
+    .dim-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .dim-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .dim-name {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--heading);
+    }
+
+    .dim-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+      line-height: 1.45;
+    }
+
+    /* ── Button groups ───────────────────────── */
+    .btn-row { display: flex; gap: 0.5rem; }
+
+    .opt {
+      flex: 1;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background: white;
+      cursor: pointer;
+      padding: 0.55rem 0.5rem 0.5rem;
+      text-align: center;
+      transition: border-color 0.12s, background 0.12s, color 0.12s;
+      font-family: var(--font);
+    }
+
+    .opt-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .opt-score {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 0.05rem;
+    }
+
+    .opt-hint {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      line-height: 1.35;
+    }
+
+    .opt:hover { border-color: var(--heading); }
+    .opt:hover .opt-label,
+    .opt:hover .opt-score { color: var(--heading); }
+
+    .opt.sel-low  { background: var(--low-bg);  border-color: var(--low-border); }
+    .opt.sel-med  { background: var(--med-bg);  border-color: var(--med-border); }
+    .opt.sel-high { background: var(--high-bg); border-color: var(--high-border); }
+
+    .opt.sel-low  .opt-label,
+    .opt.sel-low  .opt-score  { color: var(--low);  }
+    .opt.sel-med  .opt-label,
+    .opt.sel-med  .opt-score  { color: var(--med);  }
+    .opt.sel-high .opt-label,
+    .opt.sel-high .opt-score  { color: var(--high); }
+
+    /* ── Section label ───────────────────────── */
+    .section-label {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 1.1rem 0 0.65rem;
+    }
+
+    /* ── Results panel ───────────────────────── */
+    .results {
+      background: var(--heading);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 1.1rem;
+      transition: opacity 0.2s;
+    }
+
+    .results.empty { opacity: 0.45; }
+
+    .working {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.85;
+      color: rgba(255,255,255,0.6);
+      padding-bottom: 1.1rem;
+      margin-bottom: 1.1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      min-height: 4.5rem;
+    }
+
+    .working .hi { color: #fff; font-weight: 600; }
+
+    .verdict-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .verdict-badge {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border-radius: calc(var(--radius) - 2px);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+
+    .v-ship   { background: #dcfce7; color: #15803d; }
+    .v-refine { background: #fef3c7; color: #b45309; }
+    .v-split  { background: #fee2e2; color: #b91c1c; }
+
+    .pts-display { text-align: right; min-width: 80px; }
+    .pts-num {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .pts-unit { font-size: 0.72rem; color: rgba(255,255,255,0.55); margin-top: 0.15rem; }
+    .pts-hrs  { font-size: 0.8rem;  color: rgba(255,255,255,0.7);  margin-top: 0.1rem; }
+
+    .split-note {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.55;
+      display: none;
+    }
+
+    .split-note strong { color: rgba(255,255,255,0.85); }
+    .split-note code {
+      background: rgba(255,255,255,0.1);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      font-family: var(--mono);
+    }
+
+    /* ── Footer ──────────────────────────────── */
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    footer a { color: var(--heading); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .verdict-row { flex-direction: column; align-items: stretch; }
+      .pts-display  { text-align: center; }
+      .opt-hint     { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>AI-Era Velocity Calculator</h1>
+    <p>Score each dimension to get a velocity estimate based on <em>human overhead</em> — planning, review, and verification — not AI implementation time.</p>
+  </header>
+
+  <div id="dims"></div>
+
+  <div class="section-label">Ambiguity — rework risk multiplier</div>
+
+  <div class="card ambiguity">
+    <div class="dim-meta">
+      <span class="dim-tag">Dimension 5</span>
+      <span class="dim-name">Ambiguity</span>
+    </div>
+    <p class="dim-hint">How well-defined is the ticket? High ambiguity multiplies all other costs — the AI guesses confidently, rework re-runs the entire planning-review cycle.</p>
+    <div class="btn-row">
+      <button class="opt" onclick="pick('ambiguity','low',this)">
+        <span class="opt-label">Low</span>
+        <span class="opt-score">×1.0</span>
+        <span class="opt-hint">Clear AC, named actors, edge cases covered</span>
+      </button>
+      <button class="opt" onclick="pick('ambiguity','med',this)">
+        <span class="opt-label">Medium</span>
+        <span class="opt-score">×1.25</span>
+        <span class="opt-hint">Some gaps or assumptions needed</span>
+      </button>
+      <button class="opt" onclick="pick('ambiguity','high',this)">
+        <span class="opt-label">High</span>
+        <span class="opt-score">×1.5</span>
+        <span class="opt-hint">Missing AC, undefined actors, vague scope</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="results empty" id="results">
+    <div class="working" id="working">Select all five dimensions above to calculate your velocity score.</div>
+    <div class="verdict-row">
+      <div class="verdict-badge" id="verdict">—</div>
+      <div class="pts-display">
+        <div class="pts-num"  id="pts">—</div>
+        <div class="pts-unit">velocity points</div>
+        <div class="pts-hrs"  id="hrs"></div>
+      </div>
+    </div>
+    <div class="split-note" id="note"></div>
+  </div>
+
+  <footer>
+    <p>Low=1 · Medium=3 · High=6 · Ambiguity ×1.0 / ×1.25 / ×1.5 · 1 pt = 4 hrs human overhead</p>
+    <p>Part of the <a href="https://github.com/Lawrence72/claude-tools" target="_blank"><code>/estimate</code> skill</a> — claude-tools marketplace for Claude Code</p>
+  </footer>
+
+</div>
+<script>
+  const DIMS = [
+    {
+      id: 'planning', tag: 'Dimension 1', name: 'Planning Complexity',
+      hint: 'How many design decisions need locking down before the AI starts? New abstractions, multiple layers, data migrations all add planning overhead.',
+      low:  '≤ 5 files, ≤ 200 LOC — single layer, clear path',
+      med:  '2 layers or 1–2 non-obvious design decisions',
+      high: '3+ layers, new abstraction, migration, or cross-cutting concern (auth, caching, events)'
+    },
+    {
+      id: 'review', tag: 'Dimension 2', name: 'Review Surface Area',
+      hint: 'How many files and lines of code must reviewers read and approve? More surface = more chance of review fatigue and missed errors.',
+      low:  '≤ 5 files and ≤ 200 LOC',
+      med:  '5–10 files or 200–500 LOC',
+      high: '> 10 files or > 500 LOC or spans 3+ architectural layers'
+    },
+    {
+      id: 'cognitive', tag: 'Dimension 3', name: 'Cognitive Load',
+      hint: 'How much system knowledge must a reviewer hold simultaneously to catch AI mistakes? Distinct from surface area — a 3-file change in the auth system can be harder than a 15-file CRUD feature.',
+      low:  'Self-contained — basic codebase familiarity enough',
+      med:  'Reviewer must understand one non-obvious system rule',
+      high: 'Reviewer must hold 2+ complex mental models at once'
+    },
+    {
+      id: 'test', tag: 'Dimension 4', name: 'Test Complexity',
+      hint: 'How many scenarios, mocks, and integration requirements does this feature need? AI writes the tests, but humans design the scenarios and verify the mocks are correct.',
+      low:  '≤ 3 scenarios, no mocks, happy path',
+      med:  '4–7 scenarios or one external service mock',
+      high: '> 7 scenarios or multiple mocks or multi-layer integration tests'
+    }
+  ];
+
+  const SCORE = { low: 1, med: 3, high: 6 };
+  const MULT  = { low: 1.0, med: 1.25, high: 1.5 };
+  const state = { planning: null, review: null, cognitive: null, test: null, ambiguity: null };
+
+  // Render execution dimension cards
+  const container = document.getElementById('dims');
+  DIMS.forEach(d => {
+    container.insertAdjacentHTML('beforeend', `
+      <div class="card">
+        <div class="dim-meta">
+          <span class="dim-tag">${d.tag}</span>
+          <span class="dim-name">${d.name}</span>
+        </div>
+        <p class="dim-hint">${d.hint}</p>
+        <div class="btn-row">
+          <button class="opt" onclick="pick('${d.id}','low',this)">
+            <span class="opt-label">Low</span>
+            <span class="opt-score">(1 pt)</span>
+            <span class="opt-hint">${d.low}</span>
+          </button>
+          <button class="opt" onclick="pick('${d.id}','med',this)">
+            <span class="opt-label">Medium</span>
+            <span class="opt-score">(3 pts)</span>
+            <span class="opt-hint">${d.med}</span>
+          </button>
+          <button class="opt" onclick="pick('${d.id}','high',this)">
+            <span class="opt-label">High</span>
+            <span class="opt-score">(6 pts)</span>
+            <span class="opt-hint">${d.high}</span>
+          </button>
+        </div>
+      </div>`);
+  });
+
+  function pick(dim, val, btn) {
+    state[dim] = val;
+    btn.closest('.btn-row').querySelectorAll('.opt').forEach(b => {
+      b.className = 'opt';
+    });
+    btn.classList.add(`sel-${val}`);
+    recalc();
+  }
+
+  function lookup(w) {
+    if (w <=  9) return 1;
+    if (w <= 14) return 2;
+    if (w <= 19) return 3;
+    if (w <= 23) return 5;
+    if (w <= 28) return 8;
+    return 13;
+  }
+
+  function recalc() {
+    const execKeys = ['planning','review','cognitive','test'];
+    const execDone = execKeys.every(k => state[k] !== null);
+    const allDone  = execDone && state.ambiguity !== null;
+
+    const results = document.getElementById('results');
+    const working = document.getElementById('working');
+    const verdict = document.getElementById('verdict');
+    const pts     = document.getElementById('pts');
+    const hrs     = document.getElementById('hrs');
+    const note    = document.getElementById('note');
+
+    if (!execDone) {
+      results.classList.add('empty');
+      working.textContent = 'Select all five dimensions above to calculate your velocity score.';
+      verdict.textContent = '—';
+      verdict.className = 'verdict-badge';
+      pts.textContent = '—';
+      hrs.textContent = '';
+      note.style.display = 'none';
+      return;
+    }
+
+    const p = SCORE[state.planning];
+    const r = SCORE[state.review];
+    const c = SCORE[state.cognitive];
+    const t = SCORE[state.test];
+    const base = p + r + c + t;
+
+    const ambig = state.ambiguity ?? 'low';
+    const mult  = MULT[ambig];
+    const raw   = base * mult;
+    const w     = Math.round(raw);
+    const vpts  = lookup(w);
+    const hours = vpts * 4;
+
+    const highCount  = execKeys.filter(k => state[k] === 'high').length;
+    const splitReq   = highCount >= 2 || w >= 20;
+    const refineReq  = !splitReq && (state.ambiguity === 'med' || state.ambiguity === 'high');
+
+    const multStr = state.ambiguity ? `×${mult}` : `×${mult} (default)`;
+    working.innerHTML =
+      `Planning(<span class="hi">${p}</span>) + Review(<span class="hi">${r}</span>) + Cognitive(<span class="hi">${c}</span>) + Test(<span class="hi">${t}</span>) = Base <span class="hi">${base}</span><br>` +
+      `Base ${base} ${multStr === `×${mult}` ? `× Ambiguity <span class="hi">${multStr}</span>` : `<span class="hi">${multStr}</span>`} = ${raw % 1 ? raw.toFixed(2) : raw} → Weighted <span class="hi">${w}</span><br>` +
+      `Weighted ${w} → <span class="hi">${vpts} velocity point${vpts !== 1 ? 's' : ''}</span> (~${hours} hrs human overhead)`;
+
+    results.classList.remove('empty');
+    pts.textContent = vpts;
+    hrs.textContent = `~${hours} hrs overhead`;
+
+    if (splitReq) {
+      verdict.textContent = '⚠ SPLIT REQUIRED';
+      verdict.className = 'verdict-badge v-split';
+      note.style.display = 'block';
+      const why = highCount >= 2
+        ? `${highCount} dimensions scored High — a reviewer must hold multiple complex models simultaneously, which compounds the error risk.`
+        : `Weighted score ${w} ≥ 20 — aggregate complexity is too high for a single sprint item.`;
+      note.innerHTML = `<strong>Why split?</strong> ${why} Break into independently-deliverable slices and run <code>/estimate</code> on each sub-ticket.`;
+    } else if (refineReq) {
+      verdict.textContent = '✎ REFINE TICKET FIRST';
+      verdict.className = 'verdict-badge v-refine';
+      note.style.display = 'block';
+      note.innerHTML = `<strong>Ambiguity risk:</strong> The ticket has gaps that Claude will have to guess at — and the AI guesses confidently. Improve the acceptance criteria and name the actors before handing to engineering, then re-score.`;
+    } else {
+      verdict.textContent = '✓ SHIP AS-IS';
+      verdict.className = 'verdict-badge v-ship';
+      note.style.display = 'none';
+    }
+  }
+</script>
+</body>
+</html>
