@@ -373,6 +373,110 @@ If **Split required**: map each vertical slice from Phase 4f to a candidate sub-
 
 ---
 
+## Phase 5b — QA Scoring
+
+Derive the QA estimate from the same plan evidence used in Phase 5 above. No additional exploration is needed — all inputs already exist in Phases 3 and 4.
+
+---
+
+### QA Test Design Pass
+
+Before scoring, expand each AC item into concrete manual QA steps. For each AC item in the ticket, reason through what a QA tester would actually need to do to verify it — then list those as named test cases.
+
+Example reasoning:
+- AC: "User can create a game" → derives: (1) fill and submit valid form → verify game appears in list; (2) submit with missing required fields → verify validation errors shown; (3) verify unauthenticated user cannot reach the form
+- AC: "User cannot access opponent's private data" → derives: (1) test as owner; (2) test as a different logged-in user; (3) test unauthenticated
+
+List all derived scenarios explicitly and count them — this count feeds QA Dimension 2 below.
+
+---
+
+### QA Dimension 1 — Environment Setup
+
+*How much preparation does a QA engineer need before they can begin testing?*
+
+Look at: acceptance criteria (what data or system states must exist to test each AC item), data layer from Phase 4d (are specific records needed?), user roles involved.
+
+| Score | Criteria |
+|-------|----------|
+| **Low** | Existing data or a fresh user account is sufficient; no special configuration (<15 min) |
+| **Medium** | Must create specific records, configure settings, or use multiple accounts to cover roles (15–45 min) |
+| **High** | Complex data seeding, specific multi-step system state, multiple role permutations, or external service involvement (>45 min) |
+
+---
+
+### QA Dimension 2 — Scenario Coverage
+
+*How many distinct test scenarios must a QA engineer execute?*
+
+Use the QA Test Design Pass above. Manual QA coverage is derived from what the ticket promises (AC items), not from unit test count.
+
+| Score | Criteria |
+|-------|----------|
+| **Low** | 1–3 derived scenarios; single user flow; obvious pass/fail |
+| **Medium** | 4–7 derived scenarios; multiple flows, roles, or error states |
+| **High** | 8+ derived scenarios; complex permission matrix; multi-step flows across roles or system states |
+
+---
+
+### QA Dimension 3 — Regression Risk
+
+*How many existing features need re-testing after this change?*
+
+Use the file manifest from Phase 4b — specifically which **shared or core files** are modified.
+
+| Score | Criteria |
+|-------|----------|
+| **Low** | Change is isolated; no shared utilities modified; no known side effects on existing features |
+| **Medium** | 1–2 shared files modified; 1–3 existing features warrant regression spot-checks |
+| **High** | Core infrastructure or widely-used utilities modified; broad regression sweep required |
+
+---
+
+### QA Dimension 4 — Verification Complexity
+
+*How hard is it to confirm the change worked correctly?*
+
+Look at the nature of changes from Phase 4a/4b — UI vs. backend, observable vs. hidden, single-step vs. multi-step.
+
+| Score | Criteria |
+|-------|----------|
+| **Low** | Observable on-screen change; obvious pass/fail (text appears, button enabled) |
+| **Medium** | Multi-step verification; database-backed behavior requiring several actions to trigger; email/notification checks |
+| **High** | Cross-role coordination required; async/delayed behavior; data integrity verification across multiple system states |
+
+---
+
+### QA Hours Calculation
+
+```
+Scoring: Low = 1, Medium = 3, High = 6
+QA Base = Setup + Scenarios + Regression + Verification  (range: 4–24)
+
+Ambiguity multiplier: same as dev estimate above
+  Low    → ×1.0
+  Medium → ×1.25
+  High   → ×1.5
+
+QA Weighted = QA Base × Ambiguity multiplier, rounded to nearest integer
+```
+
+QA hours lookup:
+
+| QA Weighted | QA Hours |
+|---|---|
+| 4–9 | ~2 hrs |
+| 10–14 | ~4 hrs |
+| 15–19 | ~6 hrs |
+| 20–23 | ~10 hrs |
+| 24–28 | ~16 hrs |
+| 29+ | Epic QA |
+
+**Show your working:**
+> Setup(N) + Scenarios(N) + Regression(N) + Verification(N) = Base N × Ambiguity N = Weighted N → **~N hrs QA**
+
+---
+
 ## Phase 6 — Write Outputs
 
 ### Step 6a — Derive filenames
@@ -486,12 +590,13 @@ ticket: <ticket filename or title>
 project: <basename of working directory>
 verdict: <Ship as-is | Refine ticket first | Split required>
 velocity_points: <N>
+qa_hours: ~<N> hrs
 dev_plan: <date>-<slug>.md
 ---
 
 # <Feature Name> — Cost Estimate
 
-**Verdict: <SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>** · **<N> velocity pts**
+**Verdict: <SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>** · **<N> velocity pts (~<hrs> hrs dev / ~<hrs> hrs QA)**
 
 > AI-era cost model: implementation time is not the bottleneck.
 > The bottleneck is planning, review, and verification.
@@ -510,6 +615,22 @@ dev_plan: <date>-<slug>.md
 | Ambiguity (×multiplier) | Low / Medium / High | <cite: assumptions made during planning, AC item count> |
 
 **Velocity:** Planning(<n>) + Review(<n>) + Cognitive(<n>) + Test(<n>) = Base <n> × Ambiguity <multiplier> = <weighted> → **<N> pts (~<hours> hrs human overhead)**
+
+---
+
+## QA Estimate
+
+*Manual QA scenarios derived from AC items — see Phase 5b.*
+
+| Dimension | Score | Evidence |
+|-----------|-------|----------|
+| Environment Setup | Low / Medium / High | <cite: data states needed, user roles, configurations from Phase 4d + AC> |
+| Scenario Coverage | Low / Medium / High | <cite: N derived QA scenarios from AC expansion in Phase 5b> |
+| Regression Risk | Low / Medium / High | <cite: N shared files modified, specific shared utilities from Phase 4b> |
+| Verification Complexity | Low / Medium / High | <cite: observable vs hidden changes, multi-step needs, from Phase 4a/4b> |
+| Ambiguity (×multiplier) | Low / Medium / High | <same evidence as dev Ambiguity above> |
+
+**QA Estimate:** Setup(<n>) + Scenarios(<n>) + Regression(<n>) + Verification(<n>) = Base <n> × Ambiguity <multiplier> = <weighted> → **~<hrs> hrs QA**
 
 ---
 
@@ -584,7 +705,7 @@ Tell the user:
 > - Dev plan: `~/.claude/plans/<date>-<slug>.md`
 > - Cost report: `~/.claude/plans/<date>-<slug>-cost.md`
 >
-> **Verdict: <SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>** · **<N> velocity pts (~<hours> hrs human overhead)**
+> **Verdict: <SHIP AS-IS | REFINE TICKET FIRST | SPLIT REQUIRED>** · **<N> velocity pts (~<hours> hrs dev / ~<hrs> hrs QA)**
 >
 > <One sentence summary of the key finding — what drove the verdict.>"
 
